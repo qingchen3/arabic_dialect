@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.hires.min.js"></script> -->
+<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.js"></script> -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.hires.js"></script>
+
+<div id="container" style="position: relative; width: 1500px; height: 1000px;"></div>
+
+<svg width="500" height="500"></svg>
+<script>
+
+    var map = new Datamap({
+        element: document.getElementById('container'),
+        scope: 'world',
+        // Zoom in on Africa
+        setProjection: function(element) {
+            var projection = d3.geo.equirectangular()
+                .center([28, 15])
+                .scale(900)
+                .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+            var path = d3.geo.path().projection(projection);
+            return {path: path, projection: projection};
+        }
+    });
+
+    var colors = d3.scale.category10();
+
+    window.setInterval(function() {
+        map.updateChoropleth({
+            EGY: colors(Math.random() * 10),
+            BHR: colors(Math.random() * 50),
+            SYR: colors(Math.random() * 50),
+            KWT: colors(Math.random() * 50),
+            OMN: colors(Math.random() * 50),
+            SAU: colors(Math.random() * 50),
+            ARE: colors(Math.random() * 50),
+            YEM: colors(Math.random() * 50),
+            JOR: colors(Math.random() * 10),
+            IRQ: colors(Math.random() * 10),
+            QAT: colors(Math.random() * 50)
+        });
+    }, 200);
+
+</script>
+</body>
+</html>
