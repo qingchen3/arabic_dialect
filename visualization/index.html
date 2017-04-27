@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+        <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.hires.min.js"></script> -->
+        <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.js"></script> -->
+        <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.hires.js"></script>
+        <script type="text/javascript" src="http://x3dom.org/x3dom/example/x3dom.js"></script>
+
+        <script src="js/map.js" charset="utf-8"> </script>
+        <script src="js/livingbarchart.js" charset="utf-8"> </script>
+        <link rel="stylesheet" href="css/bar.css">
+
+    </head>
+    <body>
+
+        <div id="map" style="float:left; width: 60%; height: 500px;"></div>
+        <!-- <div id="bar-chart" style="float: left; width: 30%; height: 500px;"></div> -->
+        <!-- <div id="aggregate" style="float: left; width: 30%; height: 500px;"></div> -->
+        <div id="chart" style="float: left; width: 40%; height: 500px;"></div>
+
+        <script>
+            var data = [{"key": "Gulf", "region": 0, "value": 0.0},
+                {"key": "EGY", "region": 1, "value": 0.0},
+                {"key": "LAV", "region": 2, "value": 0.0},
+                {"key": "NOR", "region": 3, "value": 0.0},
+                {"key": "MSA", "region": 4, "value": 0.0}];
+
+            var map = new Datamap({
+                element: document.getElementById('map'),
+                scope: 'world',
+                // Zoom in on Africa
+                setProjection: function(element) {
+                    var projection = d3.geo.equirectangular()
+                        .center([25, 28])
+                        .scale(700)
+                        .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+                    var path = d3.geo.path().projection(projection);
+                    return {path: path, projection: projection};
+                }
+
+            });
+
+            //I like to call it what it does
+            var redraw = function(settings){
+                pullData(settings,redrawChart);
+            };
+
+            //setup (includes first draw)
+            var settings = setup('#chart');
+
+
+            //Repeat every x seconds
+            setInterval(function(){
+                redraw(settings);
+                changecolor(data, map);
+            }, 1500);
+
+
+        </script>
+    </body>
+</html>
