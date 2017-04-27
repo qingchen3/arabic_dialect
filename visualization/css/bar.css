@@ -1,0 +1,64 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    font-size: 100%;
+    vertical-align: baseline;
+    font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: inherit;
+}
+
+h1 {
+    font-size:150%;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
+    text-align: left;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+h2 {
+    font-size: 12px;
+    font-style: italic;
+    color: gray;
+    margin-top:5px;
+    margin-bottom:5px;
+}
+#everything{
+    width:600px;
+    margin:20px;
+}
+#chart{
+    width:600px;
+    height:400px;
+}
+
+.bar_bg{
+    fill: #e0e0e0;
+}
+.bar{
+    fill:#eaeaea;
+}
+text.label{
+    fill: #777777;
+    color: #777777;
+    font-size: 20px;
+    font-weight: bold;
+}
+text.category{
+    fill: #666666;
+    font-size: 14px;
+}
