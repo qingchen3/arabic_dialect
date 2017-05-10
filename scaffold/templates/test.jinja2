@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Dialect Identification Demo</title>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.hires.js"></script>
+        <script type="text/javascript" src="http://x3dom.org/x3dom/example/x3dom.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+        <script src='{{request.static_url("dialect_id_demo:static/map.js") }}'></script>
+        <script src="{{request.static_url('dialect_id_demo:static/livingbarchart.js') }}"></script>
+
+        <link rel="stylesheet" href="{{request.static_url('dialect_id_demo:static/bar.css') }}">
+        <link href="{{request.static_url('dialect_id_demo:static/bootstrap3_player.css') }}" rel="stylesheet">
+
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    </head>
+   <body>
+
+    <div id="map" style="float:left; width: 60%; height: 500px;"></div>
+    <!-- <div id="bar-chart" style="float: left; width: 30%; height: 500px;"></div> -->
+    <!-- <div id="aggregate" style="float: left; width: 30%; height: 500px;"></div> -->
+    <div id="chart" style="float: left; width: 40%; height: 500px;"></div>
+
+    <div id="audio_player" style="float:left; width: 60%; height: 100px;">
+        <audio id="player" controls>
+            <source src="{{request.static_url('dialect_id_demo:static/horse.wav') }}" type="audio/wav"/>
+        </audio>
+    </div>
+
+    <div id="audio_submit" style="float: left; width: 40%; height: 150px;">
+        <!-- <form action="/store_mp3_view" method="post" accept-charset="utf-8" enctype="multipart/form-data"> -->
+        <form id="target" action="#" method="post" accept-charset="utf-8" enctype="multipart/form-data"
+              style="margin: 0px 0px 100px 80px;">
+            <p>
+                <label>Please select an audio file.</label>
+                <input id="audiofile" type="file" value=""/>
+            </p>
+
+            <input id="bt_submit" type="submit" class="btn btn-primary" value="Submit"/>
+
+            <label id="prompt"></label>
+        </form>
+    </div>
+
+<script>
+
+    //load the page
+    $(window).on('load', function() {
+        //disable the play and mute bottons.
+        var bottons = $('.btn.btn-default.col-sm-1');
+        bottons.prop("disabled", true);
+
+        //disable the seek bar
+        $(".seek").prop('disabled', true);
+
+        // hide the timestamp and the volume control.
+        $('.btn.btn-default.col-sm-3').hide();
+    });
+
+    //select a new audio
+     function changefile(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#player').attr('src', e.target.result);
+                // enable the timestamp and the volume control.
+                $('.btn.btn-default.col-sm-3').show();
+            };
+            reader.readAsDataURL(input.files[0]);
+
+            //disable the play and mute bottons.
+            var bottons = $('.btn.btn-default.col-sm-1');
+            bottons.prop("disabled", true);
+
+            //disable the seek bar
+            $(".seek").prop('disabled', true);
+
+            //change the color of the submit botton after succeeding in submit.
+            $("#bt_submit").attr('class', 'btn btn-primary');
+            $("#bt_submit").attr('value', 'Submit');
+            $("#prompt").text('');
+
+        }
+    }
+
+    $("#audiofile").change(function(){
+        changefile(this);
+    });
+
+    $("#target").submit(function (event, audio_file) {
+        event.preventDefault();
+        var audio = $('#audiofile')[0].files[0];
+        var formdata = new FormData();
+        formdata.append('audio', audio);
+
+        $.ajax({
+            type: 'POST',
+            url: '/submit_audio_view',
+            data: formdata,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                console.log('Success.');
+                //document.getElementById("#prompt").innerText = 'audio file uploaded success....';
+                $("#prompt").text(audio.name + ' is uploaded....');
+
+                //enable bottons
+                var bottons = $('.btn.btn-default.col-sm-1');
+                bottons.prop("disabled", false);
+
+                //disable the seek bar
+                $(".seek").prop('disabled', false);
+
+                //change the color of the submit botton after succeeding in submit.
+                $("#bt_submit").attr('class', 'btn btn-success');
+                $("#bt_submit").attr('value', 'Success');
+                console.log("from the server:" + res);
+            },
+            error: function (e) {
+                console.log('Error occured');
+                console.log(e.message);
+            }
+        }).done(function () {
+            console.log("done");
+        });
+
+    });
+
+    $(audio).bind('timeupdate', function() {
+
+    });
+
+    var data = [{"key": "Gulf", "region": 0, "value": 0.0},
+        {"key": "EGY", "region": 1, "value": 0.0},
+        {"key": "LAV", "region": 2, "value": 0.0},
+        {"key": "NOR", "region": 3, "value": 0.0},
+        {"key": "MSA", "region": 4, "value": 0.0}];
+
+    var map = new Datamap({
+        element: document.getElementById('map'),
+        scope: 'world',
+        // Zoom in on Africa
+        setProjection: function (element) {
+            var projection = d3.geo.equirectangular()
+                .center([25, 28])
+                .scale(700)
+                .translate([element.offsetWidth / 2, element.offsetHeight / 2]);
+            var path = d3.geo.path().projection(projection);
+            return {path: path, projection: projection};
+        }
+    });
+
+    var charID = '#chart';
+    //setup (includes first draw)
+    var settings = setup(charID);
+
+    //I like to call it what it does
+    var redraw = function (settings) {
+        pullData(settings, data, redrawChart);
+    };
+
+    //Repeat every x seconds
+    setInterval(function () {
+        redraw(settings);
+        changecolor(data, map);
+    }, 1500);
+
+</script>
+
+<script src="{{request.static_url('dialect_id_demo:static/bootstrap3_player.js') }}"></script>
+</body>
+</html>
