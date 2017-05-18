@@ -51,6 +51,9 @@
 
 <script>
 
+    var res_data;
+    var interval = 5;
+    var pos = 0;
     //load the page
     $(window).on('load', function() {
         //disable the play and mute bottons.
@@ -62,25 +65,51 @@
 
         // hide the timestamp and the volume control.
         $('.btn.btn-default.col-sm-3').hide();
+
+	audio_player = $("#player")[0];
+        // click on the seek bar
+        $(".seek").change(function() {
+            var index = (Math.ceil(audio_player.currentTime) / interval) | 0;
+            if(index != pos) {
+                data = res_data[index];
+                redrawChart(settings, data);
+                changecolor(data, map);
+                pos = index;
+            }
+        });
+
+        // when time updates
+        audio_player.ontimeupdate = function() {
+            var t = Math.ceil(audio_player.currentTime) | 0;
+            if( t > 0 &&  t % interval == 0) {
+                var index = (t / interval) | 0;
+                if(index != pos) {
+                    data = res_data[index];
+                    redrawChart(settings, data);
+                    changecolor(data, map);
+                    pos = index;
+                }
+            }
+        }
     });
 
     //select a new audio
      function changefile(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
-            reader.onload = function (e) {
                 $('#player').attr('src', e.target.result);
                 // enable the timestamp and the volume control.
-                $('.btn.btn-default.col-sm-3').show();
             };
             reader.readAsDataURL(input.files[0]);
 
             //disable the play and mute bottons.
-            var bottons = $('.btn.btn-default.col-sm-1');
-            bottons.prop("disabled", true);
+            //var bottons = $('.btn.btn-default.col-sm-1');
+            //bottons.prop("disabled", true);
 
             //disable the seek bar
-            $(".seek").prop('disabled', true);
+            //$(".seek").prop('disabled', true);
+            //show the play and voice volume botton.
+            //$('.btn.btn-default.col-sm-3').show();
 
             //change the color of the submit botton after succeeding in submit.
             $("#bt_submit").attr('class', 'btn btn-primary');
@@ -111,9 +140,13 @@
                 //document.getElementById("#prompt").innerText = 'audio file uploaded success....';
                 $("#prompt").text(audio.name + ' is uploaded....');
 
+		res_data = decode(res);
+
                 //enable bottons
                 var bottons = $('.btn.btn-default.col-sm-1');
                 bottons.prop("disabled", false);
+                // show play and voice volume bottons.
+                $('.btn.btn-default.col-sm-3').show();
 
                 //disable the seek bar
                 $(".seek").prop('disabled', false);
@@ -133,15 +166,30 @@
 
     });
 
-    $(audio).bind('timeupdate', function() {
+     function decode (str) {
+        var keylist = ["Gulf", "EGY", "LAV", "NOR", "MSR"];
+        var regionlist = [0, 1, 2 , 3, 4]
+        var strs = str.split(",");
+        var results = [];
+        for(var i = 0; i < strs.length; i++) {
+            var nums = strs[i].split(" ");
 
-    });
+            var list = [];
+            for (var j = 0; j < nums.length; j++) {
+                list.push({"key":keylist[j], "region":regionlist[j], "value":parseInt(nums[j])});
+                formatData(list);//descreasing order
+            }
+            results.push(list);
+        }
+        return results;
+    }
 
-    var data = [{"key": "Gulf", "region": 0, "value": 0.0},
-        {"key": "EGY", "region": 1, "value": 0.0},
-        {"key": "LAV", "region": 2, "value": 0.0},
-        {"key": "NOR", "region": 3, "value": 0.0},
-        {"key": "MSA", "region": 4, "value": 0.0}];
+
+    var data = [{"key": "Gulf", "region": 0, "value": 0},
+        {"key": "EGY", "region": 1, "value": 0},
+        {"key": "LAV", "region": 2, "value": 0},
+        {"key": "NOR", "region": 3, "value": 0},
+        {"key": "MSR", "region": 4, "value": 0}];
 
     var map = new Datamap({
         element: document.getElementById('map'),
@@ -161,16 +209,12 @@
     //setup (includes first draw)
     var settings = setup(charID);
 
-    //I like to call it what it does
-    var redraw = function (settings) {
-        pullData(settings, data, redrawChart);
-    };
-
     //Repeat every x seconds
-    setInterval(function () {
-        redraw(settings);
-        changecolor(data, map);
-    }, 1500);
+    //setInterval(function () {
+    //    redraw(settings);
+    //    changecolor(data, map);
+    //    console.log(data);
+    //}, 5000);
 
 </script>
 
