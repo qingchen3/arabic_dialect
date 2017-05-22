@@ -56,10 +56,35 @@ def submit_audio_view(request):
        shutil.copyfileobj(input_file, output_file)
 
     os.rename(temp_file_path, file_path)
+
+    print (file_path)
+    ############################
+    prediction_f = "dialect.done"
+    while not os.path.exists(prediction_f):
+       time.sleep(5)
+
+    #dialect_info={}
+    #with open('dialect.done') as f:
+    #   dialect_info = dict(x.rstrip().split(None, 1) for x in f)
+
+    # read file
+
+    #ave_reader = wave.open(file_path, 'r')
+
+    #econds = int(wave_reader.getnframes() / wave_reader.getframerate())
+    response = []
+    freader = open(prediction_f, 'r')
+    for line in freader.readlines():
+        response.append(line.strip())
+    print(','.join(response))
+    #for i in range(0, seconds, 5):
+    #   response.append('{} {} {} {} {}'.format(random.randint(0, 100), random.randint(0, 100), random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)))
+
+
     #import pdb; pdb.set_trace()
 
     # run the model and get the predictation
     cmdstr = "./scaffold/run_model.sh"
     #res = os.popen(cmdstr).read()
     #return Response(filename + "\nPrediction:" + res)
-    return Response("Success.")
+    return Response(','.join(response))
